@@ -1,309 +1,263 @@
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent } from '@/components/ui/card';
-import { Calendar, Users, Trophy, MapPin, Clock } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from '@/components/ui/use-toast';
+import { Calendar, Users, ChevronLeft, Info, Clock, MapPin, User, Calendar as CalendarIcon } from 'lucide-react';
+import ClubEvents from '@/components/clubs/ClubEvents';
+import ClubMembers from '@/components/clubs/ClubMembers';
 
 // Mock club data
-const clubsData = {
-  '1': {
-    id: '1',
-    name: 'Tech Innovators',
-    description: 'A community of tech enthusiasts working on cutting-edge projects and exploring emerging technologies.',
-    longDescription: 'The Tech Innovators club is dedicated to fostering innovation and technical excellence among college students. We host workshops, hackathons, and tech talks featuring industry professionals. Our members work on collaborative projects spanning web development, mobile apps, AI, and emerging technologies. We aim to bridge the gap between academic learning and real-world applications, providing hands-on experience that prepares members for future careers in technology.',
-    logo: '/placeholder.svg',
-    category: 'technology',
-    memberCount: 120,
-    establishedYear: 2018,
-    president: 'Alex Morgan',
-    contactEmail: 'techinnovators@college.edu',
-    meetingSchedule: 'Every Tuesday, 5:00 PM',
-    meetingLocation: 'Engineering Building, Room 204',
-    events: [
-      {
-        id: 'e1',
-        title: 'Web Development Workshop',
-        date: '2023-06-10',
-        time: '3:00 PM - 5:00 PM',
-        location: 'Tech Building, Room 302',
-        description: 'Learn the fundamentals of modern web development with React and Node.js.'
-      },
-      {
-        id: 'e2',
-        title: 'Annual Hackathon',
-        date: '2023-07-15',
-        time: '9:00 AM - 9:00 PM',
-        location: 'Student Center',
-        description: '12-hour coding competition with prizes for the most innovative projects.'
-      }
-    ],
-    members: [
-      { id: 'm1', name: 'Alex Morgan', role: 'President', avatar: '/placeholder.svg' },
-      { id: 'm2', name: 'Jamie Lee', role: 'Vice President', avatar: '/placeholder.svg' },
-      { id: 'm3', name: 'Taylor Kim', role: 'Treasurer', avatar: '/placeholder.svg' },
-      { id: 'm4', name: 'Jordan Smith', role: 'Secretary', avatar: '/placeholder.svg' },
-      { id: 'm5', name: 'Casey Jones', role: 'Member', avatar: '/placeholder.svg' }
-    ]
-  },
-  '2': {
-    id: '2',
-    name: 'Creative Arts Society',
-    description: 'For students passionate about visual arts, design, photography, and creative expression.',
-    longDescription: 'The Creative Arts Society brings together students from all disciplines who share a passion for artistic expression. We provide spaces, resources, and opportunities for members to develop their creative skills through workshops, collaborative projects, and exhibitions. Our inclusive community welcomes artists of all skill levels and backgrounds, fostering an environment where creativity can flourish.',
-    logo: '/placeholder.svg',
-    category: 'arts',
-    memberCount: 85,
-    establishedYear: 2015,
-    president: 'Sam Wilson',
-    contactEmail: 'arts@college.edu',
-    meetingSchedule: 'Every Thursday, 4:30 PM',
-    meetingLocation: 'Arts Building, Studio 12',
-    events: [
-      {
-        id: 'e3',
-        title: 'Spring Art Exhibition',
-        date: '2023-05-20',
-        time: '6:00 PM - 9:00 PM',
-        location: 'Campus Gallery',
-        description: 'Annual showcase of student artwork across multiple mediums.'
-      }
-    ],
-    members: [
-      { id: 'm6', name: 'Sam Wilson', role: 'President', avatar: '/placeholder.svg' },
-      { id: 'm7', name: 'Riley Adams', role: 'Vice President', avatar: '/placeholder.svg' },
-      { id: 'm8', name: 'Jesse Parker', role: 'Treasurer', avatar: '/placeholder.svg' }
-    ]
-  }
+const mockClub = {
+  id: '1',
+  name: 'Photography Club',
+  description: 'A community of photography enthusiasts who meet regularly to share techniques, critique work, and organize photo walks around campus. We welcome photographers of all skill levels, from beginners to advanced. Our club provides access to photography equipment, organizes workshops with professional photographers, and holds exhibitions of members\' work throughout the academic year.',
+  logo: '/placeholder.svg',
+  category: 'arts',
+  memberCount: 42,
+  eventCount: 5,
+  createdDate: '2022-09-01T10:00:00',
+  location: 'Arts Building, Room 302',
+  meetingTime: 'Wednesdays, 4:00 PM',
+  president: 'Alex Johnson',
+  faculty: 'Prof. Maria Garcia'
 };
 
-const ClubDetails = () => {
-  const { clubId } = useParams();
-  const [activeTab, setActiveTab] = useState('about');
-  const [isRequesting, setIsRequesting] = useState(false);
-  
-  // Get club data based on clubId
-  const club = clubsData[clubId as keyof typeof clubsData];
-  
-  if (!club) {
-    return (
-      <div className="flex flex-col min-h-screen">
-        <Navbar />
-        <main className="flex-grow pt-32 pb-20 px-4 text-center">
-          <h1 className="text-2xl font-bold mb-4">Club Not Found</h1>
-          <p className="mb-6">The club you're looking for doesn't exist or has been removed.</p>
-          <Button asChild>
-            <Link to="/clubs">Back to Clubs</Link>
-          </Button>
-        </main>
-        <Footer />
-      </div>
-    );
+// Mock events data
+const mockEvents = [
+  {
+    id: '1',
+    title: 'Campus Photo Walk',
+    description: 'Explore the campus and capture its beauty with fellow photographers.',
+    date: '2023-11-15T15:00:00',
+    location: 'Meet at Student Union',
+    image: '/placeholder.svg'
+  },
+  {
+    id: '2',
+    title: 'Portrait Photography Workshop',
+    description: 'Learn portrait photography techniques with professional equipment.',
+    date: '2023-11-22T16:00:00',
+    location: 'Arts Building, Room 302',
+    image: '/placeholder.svg'
+  },
+  {
+    id: '3',
+    title: 'Winter Exhibition Planning',
+    description: 'Planning session for our upcoming winter photography exhibition.',
+    date: '2023-12-01T15:00:00',
+    location: 'Library Conference Room',
+    image: '/placeholder.svg'
   }
+];
+
+// Mock members data
+const mockMembers = [
+  {
+    id: '1',
+    name: 'Alex Johnson',
+    role: 'President',
+    avatar: '/placeholder.svg',
+    joinDate: '2022-09-01T10:00:00'
+  },
+  {
+    id: '2',
+    name: 'Jamie Smith',
+    role: 'Vice President',
+    avatar: '/placeholder.svg',
+    joinDate: '2022-09-05T10:00:00'
+  },
+  {
+    id: '3',
+    name: 'Taylor Wilson',
+    role: 'Secretary',
+    avatar: '/placeholder.svg',
+    joinDate: '2022-09-10T10:00:00'
+  },
+  {
+    id: '4',
+    name: 'Morgan Brown',
+    role: 'Treasurer',
+    avatar: '/placeholder.svg',
+    joinDate: '2022-09-15T10:00:00'
+  },
+  {
+    id: '5',
+    name: 'Sam Davis',
+    role: 'Member',
+    avatar: '/placeholder.svg',
+    joinDate: '2022-10-01T10:00:00'
+  }
+];
+
+const ClubDetails = () => {
+  const { clubId } = useParams<{ clubId: string }>();
+  const [isJoinLoading, setIsJoinLoading] = useState(false);
   
-  const handleJoinRequest = () => {
-    setIsRequesting(true);
-    
-    // Simulate API call
-    setTimeout(() => {
-      setIsRequesting(false);
-      toast({
-        title: "Request Sent!",
-        description: `Your request to join ${club.name} has been submitted.`,
-      });
-    }, 1000);
+  // In a real app, you would fetch club data based on clubId from your API
+  // For now, we'll use the mock data
+  
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat('en-US', {
+      month: 'long',
+      year: 'numeric'
+    }).format(date);
   };
   
+  const handleJoinRequest = async () => {
+    setIsJoinLoading(true);
+    
+    try {
+      // This would be an actual API call in a real implementation
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      toast({
+        title: "Request sent!",
+        description: `Your request to join ${mockClub.name} has been sent.`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to send join request. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsJoinLoading(false);
+    }
+  };
+
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />
       
-      <main className="flex-grow pt-24 pb-20 px-4">
-        <div className="container mx-auto max-w-6xl">
-          {/* Club Header */}
-          <div className="bg-secondary/30 rounded-lg p-6 mb-8 animate-fade-in">
-            <div className="flex flex-col md:flex-row gap-6 items-center md:items-start">
-              <Avatar className="h-24 w-24 rounded-lg">
-                <AvatarImage src={club.logo} alt={club.name} />
-                <AvatarFallback className="text-2xl font-bold rounded-lg bg-primary/10 text-primary">
-                  {club.name.substring(0, 2).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-              
-              <div className="flex-grow text-center md:text-left">
-                <div className="mb-2">
-                  <Badge variant="secondary">{club.category}</Badge>
-                </div>
-                <h1 className="text-3xl font-bold mb-2">{club.name}</h1>
-                <p className="text-muted-foreground mb-4">{club.description}</p>
-                
-                <div className="flex flex-wrap gap-4 justify-center md:justify-start">
-                  <div className="flex items-center gap-1">
-                    <Users size={16} className="text-muted-foreground" />
-                    <span>{club.memberCount} members</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Trophy size={16} className="text-muted-foreground" />
-                    <span>Est. {club.establishedYear}</span>
-                  </div>
-                </div>
+      <main className="flex-grow container px-4 py-8 max-w-6xl mx-auto">
+        {/* Back button */}
+        <Button variant="ghost" className="mb-6" asChild>
+          <Link to="/dashboard">
+            <ChevronLeft className="mr-2 h-4 w-4" />
+            Back to Dashboard
+          </Link>
+        </Button>
+        
+        {/* Club header */}
+        <div className="bg-accent p-6 rounded-lg mb-8 animate-scale-in">
+          <div className="flex flex-col md:flex-row gap-6 items-start md:items-center">
+            <Avatar className="h-24 w-24 rounded-md border-4 border-background">
+              <AvatarImage src={mockClub.logo} alt={mockClub.name} />
+              <AvatarFallback className="text-2xl rounded-md bg-primary/10 text-primary">
+                {mockClub.name.substring(0, 2).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            
+            <div className="flex-grow">
+              <div className="flex flex-wrap gap-2 mb-2">
+                <Badge>{mockClub.category}</Badge>
+                <Badge variant="outline">{mockClub.memberCount} members</Badge>
+                <Badge variant="outline">{mockClub.eventCount} events</Badge>
               </div>
-              
-              <Button 
-                className="button-animation"
-                onClick={handleJoinRequest}
-                disabled={isRequesting}
-              >
-                {isRequesting ? 'Sending Request...' : 'Request to Join'}
-              </Button>
+              <h1 className="text-3xl font-bold">{mockClub.name}</h1>
+              <p className="text-muted-foreground mt-1">
+                Established {formatDate(mockClub.createdDate)}
+              </p>
             </div>
+            
+            <Button onClick={handleJoinRequest} disabled={isJoinLoading} className="button-animation">
+              {isJoinLoading ? 'Sending Request...' : 'Request to Join'}
+            </Button>
+          </div>
+        </div>
+        
+        {/* Club content */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Sidebar with club info */}
+          <div className="space-y-6">
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center gap-2">
+                  <Info className="h-5 w-5" />
+                  Club Information
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <h4 className="text-sm font-medium text-muted-foreground mb-1">Description</h4>
+                  <p className="text-sm">{mockClub.description}</p>
+                </div>
+                
+                <div className="pt-4 border-t border-border">
+                  <div className="flex items-start gap-3 mb-3">
+                    <Clock className="h-4 w-4 text-muted-foreground mt-0.5" />
+                    <div>
+                      <h4 className="text-sm font-medium">Meeting Time</h4>
+                      <p className="text-sm text-muted-foreground">{mockClub.meetingTime}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start gap-3 mb-3">
+                    <MapPin className="h-4 w-4 text-muted-foreground mt-0.5" />
+                    <div>
+                      <h4 className="text-sm font-medium">Location</h4>
+                      <p className="text-sm text-muted-foreground">{mockClub.location}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start gap-3 mb-3">
+                    <User className="h-4 w-4 text-muted-foreground mt-0.5" />
+                    <div>
+                      <h4 className="text-sm font-medium">President</h4>
+                      <p className="text-sm text-muted-foreground">{mockClub.president}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start gap-3">
+                    <User className="h-4 w-4 text-muted-foreground mt-0.5" />
+                    <div>
+                      <h4 className="text-sm font-medium">Faculty Advisor</h4>
+                      <p className="text-sm text-muted-foreground">{mockClub.faculty}</p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center gap-2">
+                  <CalendarIcon className="h-5 w-5" />
+                  Upcoming Meeting
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center p-3 bg-muted rounded-md">
+                  <p className="font-medium">{mockClub.meetingTime}</p>
+                  <p className="text-sm text-muted-foreground mt-1">{mockClub.location}</p>
+                </div>
+              </CardContent>
+            </Card>
           </div>
           
-          {/* Club Content */}
-          <Tabs defaultValue="about" value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid grid-cols-3 w-full max-w-md mb-8">
-              <TabsTrigger value="about">About</TabsTrigger>
-              <TabsTrigger value="events">Events</TabsTrigger>
-              <TabsTrigger value="members">Members</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="about" className="animate-fade-in">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div className="md:col-span-2">
-                  <Card>
-                    <CardContent className="pt-6">
-                      <h2 className="text-2xl font-semibold mb-4">About {club.name}</h2>
-                      <p className="whitespace-pre-line mb-6">{club.longDescription}</p>
-                      
-                      <h3 className="text-lg font-semibold mb-3">Contact Information</h3>
-                      <p className="mb-1"><strong>President:</strong> {club.president}</p>
-                      <p className="mb-1"><strong>Email:</strong> {club.contactEmail}</p>
-                      
-                      <h3 className="text-lg font-semibold mt-6 mb-3">Meeting Details</h3>
-                      <div className="flex items-center gap-2 mb-2">
-                        <Clock size={16} className="text-muted-foreground" />
-                        <span>{club.meetingSchedule}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <MapPin size={16} className="text-muted-foreground" />
-                        <span>{club.meetingLocation}</span>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-                
-                <div>
-                  <Card>
-                    <CardContent className="pt-6">
-                      <h3 className="text-lg font-semibold mb-4">Leadership</h3>
-                      <div className="space-y-4">
-                        {club.members
-                          .filter(member => member.role !== 'Member')
-                          .map(leader => (
-                            <div key={leader.id} className="flex items-center gap-3">
-                              <Avatar>
-                                <AvatarImage src={leader.avatar} alt={leader.name} />
-                                <AvatarFallback className="bg-primary/10 text-primary">
-                                  {leader.name.substring(0, 2).toUpperCase()}
-                                </AvatarFallback>
-                              </Avatar>
-                              <div>
-                                <p className="font-medium">{leader.name}</p>
-                                <p className="text-sm text-muted-foreground">{leader.role}</p>
-                              </div>
-                            </div>
-                          ))}
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="events" className="animate-fade-in">
-              <Card>
-                <CardContent className="pt-6">
-                  <h2 className="text-2xl font-semibold mb-6">Upcoming Events</h2>
-                  
-                  {club.events.length > 0 ? (
-                    <div className="space-y-6">
-                      {club.events.map(event => (
-                        <div 
-                          key={event.id} 
-                          className="p-4 border rounded-lg transition-all hover:border-primary/20 hover:shadow-subtle"
-                        >
-                          <h3 className="text-xl font-medium mb-2">{event.title}</h3>
-                          <p className="text-muted-foreground mb-3">{event.description}</p>
-                          
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="flex items-center gap-2">
-                              <Calendar size={16} className="text-muted-foreground" />
-                              <span>{event.date}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <Clock size={16} className="text-muted-foreground" />
-                              <span>{event.time}</span>
-                            </div>
-                          </div>
-                          
-                          <div className="flex items-center gap-2 mt-2">
-                            <MapPin size={16} className="text-muted-foreground" />
-                            <span>{event.location}</span>
-                          </div>
-                          
-                          <div className="mt-4 flex justify-end">
-                            <Button asChild variant="outline" size="sm">
-                              <Link to={`/events/${event.id}`}>
-                                View Details
-                              </Link>
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-center py-12 text-muted-foreground">
-                      No upcoming events scheduled. Check back later!
-                    </p>
-                  )}
-                </CardContent>
-              </Card>
-            </TabsContent>
-            
-            <TabsContent value="members" className="animate-fade-in">
-              <Card>
-                <CardContent className="pt-6">
-                  <h2 className="text-2xl font-semibold mb-6">Club Members</h2>
-                  
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                    {club.members.map(member => (
-                      <div 
-                        key={member.id} 
-                        className="p-4 border rounded-lg flex items-center gap-3 transition-all hover:border-primary/20 hover:shadow-subtle"
-                      >
-                        <Avatar>
-                          <AvatarImage src={member.avatar} alt={member.name} />
-                          <AvatarFallback className="bg-primary/10 text-primary">
-                            {member.name.substring(0, 2).toUpperCase()}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <p className="font-medium">{member.name}</p>
-                          <Badge variant="outline">{member.role}</Badge>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
+          {/* Main content area */}
+          <div className="lg:col-span-2">
+            <Tabs defaultValue="events" className="w-full">
+              <TabsList className="mb-4">
+                <TabsTrigger value="events">Events</TabsTrigger>
+                <TabsTrigger value="members">Members</TabsTrigger>
+              </TabsList>
+              <TabsContent value="events" className="animate-fade-in">
+                <ClubEvents events={mockEvents} />
+              </TabsContent>
+              <TabsContent value="members" className="animate-fade-in">
+                <ClubMembers members={mockMembers} />
+              </TabsContent>
+            </Tabs>
+          </div>
         </div>
       </main>
       

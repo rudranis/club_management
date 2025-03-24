@@ -1,220 +1,136 @@
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Bell, Calendar, CheckCircle, Clock, X } from 'lucide-react';
-
-// Mock data
-const userClubs = [
-  {
-    id: '1',
-    name: 'Tech Innovators',
-    role: 'Member',
-    logo: '/placeholder.svg',
-    newNotifications: 3
-  },
-  {
-    id: '2',
-    name: 'Debate Club',
-    role: 'Coordinator',
-    logo: '/placeholder.svg',
-    newNotifications: 0
-  }
-];
-
-const pendingRequests = [
-  {
-    id: '1',
-    clubName: 'Photography Society',
-    status: 'pending',
-    requestedAt: '2023-05-15'
-  }
-];
-
-const upcomingEvents = [
-  {
-    id: '1',
-    title: 'Web Development Workshop',
-    clubName: 'Tech Innovators',
-    date: '2023-06-10',
-    time: '3:00 PM',
-    location: 'Tech Building, Room 302'
-  },
-  {
-    id: '2',
-    title: 'Mock Debate: Climate Change',
-    clubName: 'Debate Club',
-    date: '2023-06-15',
-    time: '5:30 PM',
-    location: 'Humanities Hall, Room 101'
-  }
-];
+import { PlusCircle } from 'lucide-react';
+import ClubsList from '@/components/clubs/ClubsList';
+import MyClubs from '@/components/clubs/MyClubs';
+import JoinRequests from '@/components/clubs/JoinRequests';
+import CreateClubForm from '@/components/clubs/CreateClubForm';
+import { ClubProps } from '@/components/clubs/ClubCard';
 
 const Dashboard = () => {
-  const [activeTab, setActiveTab] = useState('overview');
+  const [showCreateClub, setShowCreateClub] = useState(false);
   
+  // Mock data for clubs
+  const mockClubs: ClubProps[] = [
+    {
+      id: '1',
+      name: 'Photography Club',
+      description: 'A community of photography enthusiasts who meet regularly to share techniques, critique work, and organize photo walks around campus.',
+      logo: '/placeholder.svg',
+      category: 'arts',
+      memberCount: 42,
+      eventCount: 5,
+    },
+    {
+      id: '2',
+      name: 'Debate Society',
+      description: 'We organize debates, public speaking events, and participate in competitions to improve our argumentation and critical thinking skills.',
+      logo: '/placeholder.svg',
+      category: 'academic',
+      memberCount: 38,
+      eventCount: 12,
+    },
+    {
+      id: '3',
+      name: 'Robotics Club',
+      description: 'Building and programming robots for competitions and demonstrations. We welcome members of all skill levels!',
+      logo: '/placeholder.svg',
+      category: 'technical',
+      memberCount: 27,
+      eventCount: 3,
+    },
+    {
+      id: '4',
+      name: 'Environmental Society',
+      description: 'Working to make our campus more sustainable through awareness campaigns, tree planting drives, and waste management initiatives.',
+      logo: '/placeholder.svg',
+      category: 'social',
+      memberCount: 56,
+      eventCount: 8,
+    },
+    {
+      id: '5',
+      name: 'Chess Club',
+      description: 'Weekly meetings to play chess, learn strategies, and prepare for inter-college chess tournaments. All levels welcome from beginners to masters.',
+      logo: '/placeholder.svg',
+      category: 'recreational',
+      memberCount: 22,
+      eventCount: 4,
+    },
+    {
+      id: '6',
+      name: 'Dance Ensemble',
+      description: 'Contemporary, hip-hop, and traditional dance forms practiced and performed at various college events throughout the year.',
+      logo: '/placeholder.svg',
+      category: 'arts',
+      memberCount: 34,
+      eventCount: 9,
+    },
+  ];
+
+  // Mock data for my clubs
+  const myClubs = mockClubs.slice(0, 2);
+  
+  // Mock data for join requests
+  const joinRequests = [
+    {
+      id: '1',
+      clubId: '3',
+      clubName: 'Robotics Club',
+      requestDate: '2023-08-15T10:30:00',
+      status: 'pending',
+    },
+    {
+      id: '2',
+      clubId: '5',
+      clubName: 'Chess Club',
+      requestDate: '2023-08-12T15:45:00',
+      status: 'pending',
+    },
+  ];
+
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />
       
-      <main className="flex-grow pt-24 pb-20 px-4">
-        <div className="container mx-auto max-w-6xl">
-          <div className="flex flex-col md:flex-row justify-between items-start gap-6 mb-8">
-            <div>
-              <h1 className="text-3xl font-bold">Dashboard</h1>
-              <p className="text-muted-foreground mt-1">Manage your clubs and activities</p>
-            </div>
-            <Button asChild className="button-animation">
-              <a href="/explore">Explore More Clubs</a>
-            </Button>
+      <main className="flex-grow container px-4 py-8 max-w-6xl mx-auto">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+            <p className="text-muted-foreground">Manage your clubs, events, and memberships</p>
           </div>
-          
-          <Tabs defaultValue="overview" value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid grid-cols-3 w-full max-w-md mb-8">
-              <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="clubs">My Clubs</TabsTrigger>
-              <TabsTrigger value="events">Events</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="overview" className="space-y-6 animate-fade-in">
-              {/* Club Memberships */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Your Club Memberships</CardTitle>
-                  <CardDescription>Clubs you have joined or requested to join</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {userClubs.length > 0 ? (
-                    <div className="space-y-4">
-                      {userClubs.map(club => (
-                        <div key={club.id} className="flex items-center justify-between p-3 bg-secondary/30 rounded-lg">
-                          <div className="flex items-center gap-4">
-                            <Avatar className="h-10 w-10">
-                              <AvatarImage src={club.logo} alt={club.name} />
-                              <AvatarFallback className="bg-primary/10 text-primary">
-                                {club.name.substring(0, 2).toUpperCase()}
-                              </AvatarFallback>
-                            </Avatar>
-                            <div>
-                              <h4 className="font-medium">{club.name}</h4>
-                              <Badge variant="outline">{club.role}</Badge>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-3">
-                            {club.newNotifications > 0 && (
-                              <div className="flex items-center gap-1 text-sm">
-                                <Bell size={14} className="text-primary" />
-                                <span>{club.newNotifications} new</span>
-                              </div>
-                            )}
-                            <Button asChild variant="ghost" size="sm">
-                              <a href={`/clubs/${club.id}`}>View</a>
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-center py-6 text-muted-foreground">
-                      You haven't joined any clubs yet.
-                    </p>
-                  )}
-
-                  {pendingRequests.length > 0 && (
-                    <div className="mt-6">
-                      <h4 className="font-medium mb-3">Pending Requests</h4>
-                      {pendingRequests.map(request => (
-                        <div key={request.id} className="flex items-center justify-between p-3 bg-muted rounded-lg">
-                          <div>
-                            <h4 className="font-medium">{request.clubName}</h4>
-                            <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                              <Clock size={14} />
-                              <span>Requested on {new Date(request.requestedAt).toLocaleDateString()}</span>
-                            </div>
-                          </div>
-                          <Badge variant="secondary">Pending Approval</Badge>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-
-              {/* Upcoming Events */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Upcoming Events</CardTitle>
-                  <CardDescription>Events from your clubs</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {upcomingEvents.length > 0 ? (
-                    <div className="space-y-4">
-                      {upcomingEvents.map(event => (
-                        <div key={event.id} className="p-4 border rounded-lg hover:border-primary/20 transition-all">
-                          <div className="flex justify-between items-start">
-                            <h4 className="font-medium">{event.title}</h4>
-                            <Badge variant="outline">{event.clubName}</Badge>
-                          </div>
-                          <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
-                            <div className="flex items-center gap-1">
-                              <Calendar size={14} />
-                              <span>{event.date} at {event.time}</span>
-                            </div>
-                          </div>
-                          <p className="text-sm mt-1">{event.location}</p>
-                          <div className="flex justify-end mt-3">
-                            <Button asChild variant="ghost" size="sm">
-                              <a href={`/events/${event.id}`}>View Details</a>
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-center py-6 text-muted-foreground">
-                      No upcoming events from your clubs.
-                    </p>
-                  )}
-                </CardContent>
-              </Card>
-            </TabsContent>
-            
-            <TabsContent value="clubs" className="animate-fade-in">
-              <Card>
-                <CardHeader>
-                  <CardTitle>My Clubs</CardTitle>
-                  <CardDescription>Manage your club memberships and roles</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground mb-6">
-                    View all your club memberships, roles, and pending requests.
-                  </p>
-                  {/* Content will go here */}
-                </CardContent>
-              </Card>
-            </TabsContent>
-            
-            <TabsContent value="events" className="animate-fade-in">
-              <Card>
-                <CardHeader>
-                  <CardTitle>My Events</CardTitle>
-                  <CardDescription>Track upcoming and past events</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground mb-6">
-                    View all events from your clubs, including your role and responsibilities.
-                  </p>
-                  {/* Content will go here */}
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
+          <Button onClick={() => setShowCreateClub(!showCreateClub)} className="button-animation">
+            <PlusCircle className="mr-2 h-5 w-5" />
+            Create Club
+          </Button>
         </div>
+
+        {showCreateClub && (
+          <div className="mb-8 animate-fade-in">
+            <CreateClubForm onCancel={() => setShowCreateClub(false)} />
+          </div>
+        )}
+
+        <Tabs defaultValue="explore" className="w-full">
+          <TabsList className="mb-4">
+            <TabsTrigger value="explore">Explore Clubs</TabsTrigger>
+            <TabsTrigger value="myclubs">My Clubs</TabsTrigger>
+            <TabsTrigger value="requests">Join Requests</TabsTrigger>
+          </TabsList>
+          <TabsContent value="explore" className="animate-fade-in">
+            <ClubsList clubs={mockClubs} />
+          </TabsContent>
+          <TabsContent value="myclubs" className="animate-fade-in">
+            <MyClubs clubs={myClubs} />
+          </TabsContent>
+          <TabsContent value="requests" className="animate-fade-in">
+            <JoinRequests requests={joinRequests} />
+          </TabsContent>
+        </Tabs>
       </main>
       
       <Footer />
