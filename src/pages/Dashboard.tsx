@@ -82,14 +82,14 @@ const Dashboard = () => {
       clubId: '3',
       clubName: 'Robotics Club',
       requestDate: '2023-08-15T10:30:00',
-      status: 'pending',
+      status: 'pending' as 'pending' | 'approved' | 'rejected',
     },
     {
       id: '2',
       clubId: '5',
       clubName: 'Chess Club',
       requestDate: '2023-08-12T15:45:00',
-      status: 'pending',
+      status: 'pending' as 'pending' | 'approved' | 'rejected',
     },
   ];
 
